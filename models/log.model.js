@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const logSchema = new Schema({
-    date: { 
+    logDate: { 
         type: Date, 
         required: true, 
         default: Date.now()
     },
-    place: {
+    location: {
         type: String, 
         required: true  
     },
