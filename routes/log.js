@@ -14,22 +14,33 @@ router.route('/:id').get((req, res) => {
         .catch(err => res.status(400).json(err));
 })
 
+router.route('/:id').delete((req, res) => {
+    Log.findByIdAndDelete(req.params.id)
+        .then(() => res.json('Covid log deleted'))
+        .catch((err) => res.status(400).json(err))
+})
+
 router.route('/add').post((req, res) => {
-    const logDate = Date.parse(req.body.date);
+    // console.log('IN POST');
+    // console.log('req', req.body);
+    const logDate = Date.parse(req.body.logDate);
+    // if ( Number.isNaN( logDate )) {
+    //     logDate = new Date();
+    // }
     const location = req.body.location;
     const duration = Number(req.body.duration);
     const interactions = Number(req.body.interactions);
-
+// console.log(logDate, typeof logDate);
     const newCovidLog = new Log({
         logDate,
         location,
         duration,
         interactions
     })
-
+// console.log('LOG CREATED');
     newCovidLog.save()
-    .then(() => res.json('Covid log added'))
-    .catch((err) => res.status(400).json(err));
+    .then(() => res.json({status: 'Covid log added'}))
+    .catch((err) => res.json(err));
 });
 
 
