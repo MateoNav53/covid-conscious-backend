@@ -1,6 +1,7 @@
-//sets up express and cors
+//sets up express, cors, and cookie parser
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser')
 
 //connects to MongoDB database
 const mongoose = require('mongoose')
@@ -12,14 +13,31 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 7000;
 
+const User = require('./models/user.model');
+
+const userInput = {
+    username: "MateoNav",
+    password: "mateon123",
+    fullname: "Mateo Navarrette",
+    email: "mateonav24@gmail.com"
+}
+
+const user = new User(userInput);user.save((err, document)=> {
+    if(err){
+        console.log(err);
+    console.log(document);
+    }
+})
+
 //middleware that uses cors and allows us to parse json
 //middleware provides extra services that are outside your operating system.
 //helps frontend and backend interact with each other
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 //creates routes for the index
-app.use('/', require('./routes/index'))
+// app.use('/', require('./routes/index'))
 //creates routes for user and logs
 app.use('/user', require('./routes/user'))
 app.use('/log', require('./routes/log'))
