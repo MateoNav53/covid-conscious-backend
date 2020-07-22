@@ -40,7 +40,7 @@ app.use(cookieParser());
 
 //creates routes for user and logs
 app.use('/user', require('./routes/user'))
-app.use('/log', require('./routes/log'))
+// app.use('/log', require('./routes/log'))
 
 const uri = process.env.MONGO_URI;
 mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true });

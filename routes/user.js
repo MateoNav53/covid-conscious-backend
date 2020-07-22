@@ -50,4 +50,39 @@ router.get('/logout', passport.authenticate('jwt', {session: false}), (req, res)
     res.json({user: {username: ""}, success: true});
 });
 
+router.route('/covidlog').get((req, res) => {
+    Log.find()
+        .then(covidLogs => res.json(covidLogs))
+        .catch(err => res.json(err));
+});
+
+router.route('/covidlog/:id').get((req, res) => {
+    let id = req.params.id;
+    Log.findById(id)
+        .then(log => res.json(log))
+        .catch(err => res.json(err));
+})
+
+router.route('/covidlog/:id').delete((req, res) => {
+    Log.findByIdAndDelete(req.params.id)
+        .then(() => res.json('Covid log deleted'))
+        .catch((err) => res.json(err))
+})
+
+router.route('/covidlog/add').post((req, res) => {
+    const logDate = Date.parse(req.body.logDate);
+    const location = req.body.location;
+    const duration = Number(req.body.duration);
+    const interactions = Number(req.body.interactions);
+    const newCovidLog = new Log({
+        logDate,
+        location,
+        duration,
+        interactions
+    })
+    newCovidLog.save()
+    .then(() => res.json({status: 'Covid log added'}))
+    .catch((err) => res.json(err));
+});
+
 module.exports = router;
