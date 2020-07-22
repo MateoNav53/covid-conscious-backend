@@ -41,6 +41,7 @@ userSchema.pre('save',function(next){
     });
 });
 
+//compares the password input from the client end to the hashed password in the db
 userSchema.methods.comparePassword = function(password, callback){
     bcrypt.compare(password,this.password,(err, isMatch)=>{
         if(err)
