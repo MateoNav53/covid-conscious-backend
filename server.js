@@ -15,21 +15,6 @@ const port = process.env.PORT || 7000;
 
 const User = require('./models/user.model');
 
-// const userInput = {
-//     username: "MateoNav",
-//     password: "mateon123",
-//     fullname: "Mateo Navarrette",
-//     email: "mateonav24@gmail.com"
-// }
-
-// const user = new User(userInput);
-// user.save((err, document)=> {
-//     if(err){
-//         console.log(err);
-//     console.log(document);
-//     }
-// })
-
 //middleware that uses cors and allows us to parse json
 //middleware provides extra services that are outside your operating system.
 //helps frontend and backend interact with each other
