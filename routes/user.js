@@ -9,27 +9,30 @@ const Log = require('../models/log.model');
 const signToken = userID => {
     // JWT.sign returns the actual jwt token
     return JWT.sign({
+        //set who issued the JWT token
         iss: "MateoNav",
+        //sub short for subject, state who is getting the jwt token. this case the userID which is the primary key of the user
         sub: userID
     }, "MateoNav", {expiresIn: "1h"});
 }
 
 router.post('/register',(req,res) => {
+    //using destructuring to associate our variables with req.body
     const{ username, fullname, email, password} = req.body;
     // searches for the username
     User.findOne({username}, (err, user) => {
         if(err)
-            res.status(err).json({message: {msgBody: "Error has occurred", msgError: true}})
+            res.status(err).json({message: {messageBody: "Error has occurred", errorMessage: true}})
         if(user)
-            res.status(400).json({message: {msgBody: "Username is already taken", msgError: true}})
+            res.status(400).json({message: {messagBody: "Username is already taken", errorMessage: true}})
         // if no error and if username entered isn't a duplicate, create this new username
         else {
             const newUser = new User({username, fullname, email, password});
             newUser.save(err => {
                 if(err)
-                    res.status(err).json({message: {msgBody: "Error has occurred", msgError: true}})
+                    res.status(500).json({message : {messagBody: "Error has occured", errorMessage: true}});
                 else
-                    res.status(201).json({message: {msgBody: "Account successfully created", msgError: true}})
+                    res.status(201).json({message : {messagBody: "Account created", errorMessage: false}});
 
             })
         }
@@ -46,14 +49,19 @@ router.post('/login', passport.authenticate('local', {session: false}), (req, re
 });
 
 router.get('/logout', passport.authenticate('jwt', {session: false}), (req, res) => {
+    //deletes the JWT token, which was set as the 'access_token' in our passport file
     res.clearCookie('access_token');
     res.json({user: {username: ""}, success: true});
 });
 
-router.route('/covidlog').get((req, res) => {
-    Log.find()
-        .then(covidLogs => res.json(covidLogs))
-        .catch(err => res.json(err));
+router.route('/covidlog').get(passport.authenticate('jwt', {session: false}), (req, res) => {
+    User.findById({_id: req.user._id}).populate('logTable').exec((err, document) => {
+        if(err)
+            res.status(err).json({message: {messagBody: 'Error has occurred', errorMessage: true}})
+        else{
+            res.status(200).json({logs: document.logs, authenticated: true})
+        }
+    })
 });
 
 router.route('/covidlog/:id').get((req, res) => {
@@ -69,7 +77,7 @@ router.route('/covidlog/:id').delete((req, res) => {
         .catch((err) => res.json(err))
 })
 
-router.route('/covidlog/add').post((req, res) => {
+router.route('/covidlog/add').post(passport.authenticate('jwt', {session: false}), (req, res) => {
     const logDate = Date.parse(req.body.logDate);
     const location = req.body.location;
     const duration = Number(req.body.duration);
@@ -80,9 +88,24 @@ router.route('/covidlog/add').post((req, res) => {
         duration,
         interactions
     })
-    newCovidLog.save()
-    .then(() => res.json({status: 'Covid log added'}))
-    .catch((err) => res.json(err));
+    newCovidLog.save(err => {
+        if(err)
+        res.status(err).json({message: {messagBody: 'Error: ', errorMessage: true}})
+        else{
+            req.user.logs.push(newCovidLog)
+            req.user.save(err => {
+                if(err)
+                    res.status(err).json({message: {messagBody: 'Error: ', errorMessage: true}})
+                else
+                    res.status(200).json({message: {messagBody: 'Created covid log', errorMessage: false}})
+            })
+        }
+    })
+});
+
+router.route('/authenticated').get(passport.authenticate('jwt', {session: false}), (req, res) => {
+    const {username} = req.user;
+    res.status(200).json({isAuthenticated: true, user: {username}});
 });
 
 module.exports = router;
