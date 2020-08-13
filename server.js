@@ -22,6 +22,18 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
+// app.use((req, res, next) =>{
+//     res.header('Access-Control-Allow-Origin', 'http://localhost:3000'),
+//     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
+//     res.header('Authorization', `'Bearer ' + ${token}`)
+
+//     if(req.method ==="OPTIONS") {
+//         Response.HEADER('Access-Control-Allow-Methods', "PUT, POST, PATCH, DELETE, GET")
+//     }
+//     //if we didn't put this next here we'd just block everything. the next lets us go to our routes
+//     next();
+
+// })
 
 //creates routes for user and logs
 app.use('/user', require('./routes/user'))

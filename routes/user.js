@@ -43,25 +43,37 @@ router.post('/login', passport.authenticate('local', {session: false}), (req, re
     if(req.isAuthenticated()){
         const {_id, username} = req.user;
         const token = signToken(_id);
-        res.cookie('access_token', token, {httpOnly: true, sameSite: true});
+        res.cookie('jwt', token, {httpOnly: true, sameSite: true});
         res.status(200).json({isAuthenticated: true, user: {username}});
     }
 });
 
 router.get('/logout', passport.authenticate('jwt', {session: false}), (req, res) => {
-    //deletes the JWT token, which was set as the 'access_token' in our passport file
-    res.clearCookie('access_token');
+    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    //deletes the JWT token, which was set as the 'jwt' in our passport file
+    res.clearCookie('jwt');
     res.json({user: {username: ""}, success: true});
 });
 
-router.route('/covidlog').get(passport.authenticate('jwt', {session: false}), (req, res) => {
-    User.findById({_id: req.user._id}).populate('logTable').exec((err, document) => {
+router.get('/covidlog', passport.authenticate('jwt', {session: false}), (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Authorization', `Bearer ${token}`)
+    // if(req.isAuthenticated()){
+    //     User.findById({_id: req.user._id}).populate('logs').exec((err, document) => {
+    //         if(err)
+    //             res.status(err).json({message: {messagBody: 'Error has occurred', errorMessage: true}})
+    //         else{
+    //             res.status(200).json({logs: document.logs, authenticated: true})
+    //         }
+    //     });
+    // }
+    User.findById({_id: req.user._id}).populate('logs').exec((err, document) => {
         if(err)
             res.status(err).json({message: {messagBody: 'Error has occurred', errorMessage: true}})
         else{
             res.status(200).json({logs: document.logs, authenticated: true})
         }
-    })
+    });
 });
 
 router.route('/covidlog/:id').get((req, res) => {
@@ -77,7 +89,8 @@ router.route('/covidlog/:id').delete((req, res) => {
         .catch((err) => res.json(err))
 })
 
-router.route('/covidlog/add').post(passport.authenticate('jwt', {session: false}), (req, res) => {
+router.post('/covidlog/add', passport.authenticate('jwt', {session: false}), (req, res) => {
+    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
     const logDate = Date.parse(req.body.logDate);
     const location = req.body.location;
     const duration = Number(req.body.duration);
@@ -90,7 +103,7 @@ router.route('/covidlog/add').post(passport.authenticate('jwt', {session: false}
     })
     newCovidLog.save(err => {
         if(err)
-        res.status(err).json({message: {messagBody: 'Error: ', errorMessage: true}})
+            res.status(err).json({message: {messagBody: 'Error: ', errorMessage: true}})
         else{
             req.user.logs.push(newCovidLog)
             req.user.save(err => {
@@ -103,7 +116,8 @@ router.route('/covidlog/add').post(passport.authenticate('jwt', {session: false}
     })
 });
 
-router.route('/authenticated').get(passport.authenticate('jwt', {session: false}), (req, res) => {
+router.get('/authenticated', passport.authenticate('jwt', {session: false}), (req, res) => {
+    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
     const {username} = req.user;
     res.status(200).json({isAuthenticated: true, user: {username}});
 });

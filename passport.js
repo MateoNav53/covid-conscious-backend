@@ -1,6 +1,7 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('./models/user.model');
+const { ExtractJwt } = require('passport-jwt');
 const JwtStrategy = require('passport-jwt').Strategy;
 
 const cookieExtractor = req => {
@@ -8,8 +9,8 @@ const cookieExtractor = req => {
     //if there's a request, and request.cookies isn't empty,
     //we're going to check if there's a JWT
     if(req && req.cookies){
-        //we are setting the cookie as an access token, titled 'access_token'
-        token = req.cookies["access_token"];
+        //we are setting the cookie as an access token, titled 'jwt'
+        token = req.cookies["jwt"];
     }
     return token;
 }
@@ -17,6 +18,7 @@ const cookieExtractor = req => {
 //used for authorization. whenever we want to protect a resource. 
 passport.use(new JwtStrategy({
     jwtFromRequest: cookieExtractor,
+    // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken,
     secretOrKey: "MateoNav"
 }, (payload, done) => {
     //check to see if the user exists, search by primary key which is payload.sub
