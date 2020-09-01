@@ -23,13 +23,10 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true,
-
     },
     logs: [{type: mongoose.Schema.Types.ObjectId, ref: 'Log'}]
 }, { timestamps: true });
 
-//checks to see if the password field has been modified already.
-//if it has been modified, then there's no need to hash the password.
 userSchema.pre('save',function(next){
     if(!this.isModified('password'))
         return next();
@@ -41,7 +38,6 @@ userSchema.pre('save',function(next){
     });
 });
 
-//compares the password input from the client end to the hashed password in the db
 userSchema.methods.comparePassword = function(password, callback){
     bcrypt.compare(password,this.password,(err, isMatch)=>{
         if(err)
