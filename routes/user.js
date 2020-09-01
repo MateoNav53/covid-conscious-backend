@@ -7,36 +7,37 @@ const User = require('../models/user.model');
 const Log = require('../models/log.model');
 
 const signToken = userID => {
-    // JWT.sign returns the actual jwt token
     return JWT.sign({
-        //set who issued the JWT token
         iss: "MateoNav",
-        //sub short for subject, state who is getting the jwt token. this case the userID which is the primary key of the user
         sub: userID
     }, "MateoNav", {expiresIn: "1h"});
 }
 
 router.post('/register',(req,res) => {
-    //using destructuring to associate our variables with req.body
     const{ username, fullname, email, password} = req.body;
-    // searches for the username
     User.findOne({username}, (err, user) => {
         if(err)
             res.status(err).json({message: {messageBody: "Error has occurred", errorMessage: true}})
         if(user)
-            res.status(400).json({message: {messagBody: "Username is already taken", errorMessage: true}})
-        // if no error and if username entered isn't a duplicate, create this new username
+            res.status(400).json({message: {messagBody: "Username is already registered", errorMessage: true}})
         else {
-            const newUser = new User({username, fullname, email, password});
-            newUser.save(err => {
+            User.findOne({email}, (err, user) => {
                 if(err)
-                    res.status(500).json({message : {messagBody: "Error has occured", errorMessage: true}});
-                else
-                    res.status(201).json({message : {messagBody: "Account created", errorMessage: false}});
-
+                    res.status(err).json({message: {messageBody: "Error has occurred", errorMessage: true}})
+                if(user)
+                    res.status(400).json({message: {messagBody: "Email is already registered", errorMessage: true}})
+                else {
+                    const newUser = new User({username, fullname, email, password});
+                    newUser.save(err => {
+                        if(err)
+                            res.status(500).json({message : {messagBody: "Error has occured - new user not created", errorMessage: true}});
+                        else
+                            res.status(201).json({message : {messagBody: "Account created", errorMessage: false}});
+                    })
+                }
             })
+            
         }
-
     })
 })
 router.post('/login', passport.authenticate('local', {session: false}), (req, res) => {
@@ -49,24 +50,11 @@ router.post('/login', passport.authenticate('local', {session: false}), (req, re
 });
 
 router.get('/logout', passport.authenticate('jwt', {session: false}), (req, res) => {
-    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-    //deletes the JWT token, which was set as the 'jwt' in our passport file
     res.clearCookie('jwt');
     res.json({user: {username: ""}, success: true});
 });
 
 router.get('/covidlog', passport.authenticate('jwt', {session: false}), (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-    res.setHeader('Authorization', `Bearer ${token}`)
-    // if(req.isAuthenticated()){
-    //     User.findById({_id: req.user._id}).populate('logs').exec((err, document) => {
-    //         if(err)
-    //             res.status(err).json({message: {messagBody: 'Error has occurred', errorMessage: true}})
-    //         else{
-    //             res.status(200).json({logs: document.logs, authenticated: true})
-    //         }
-    //     });
-    // }
     User.findById({_id: req.user._id}).populate('logs').exec((err, document) => {
         if(err)
             res.status(err).json({message: {messagBody: 'Error has occurred', errorMessage: true}})
@@ -76,12 +64,6 @@ router.get('/covidlog', passport.authenticate('jwt', {session: false}), (req, re
     });
 });
 
-router.route('/covidlog/:id').get((req, res) => {
-    let id = req.params.id;
-    Log.findById(id)
-        .then(log => res.json(log))
-        .catch(err => res.json(err));
-})
 
 router.route('/covidlog/:id').delete((req, res) => {
     Log.findByIdAndDelete(req.params.id)
@@ -90,7 +72,6 @@ router.route('/covidlog/:id').delete((req, res) => {
 })
 
 router.post('/covidlog/add', passport.authenticate('jwt', {session: false}), (req, res) => {
-    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
     const logDate = Date.parse(req.body.logDate);
     const location = req.body.location;
     const duration = Number(req.body.duration);
@@ -117,7 +98,6 @@ router.post('/covidlog/add', passport.authenticate('jwt', {session: false}), (re
 });
 
 router.get('/authenticated', passport.authenticate('jwt', {session: false}), (req, res) => {
-    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
     const {username} = req.user;
     res.status(200).json({isAuthenticated: true, user: {username}});
 });
