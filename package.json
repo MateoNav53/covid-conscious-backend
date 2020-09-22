@@ -11,7 +11,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "proxy": "https://elegant-jones-e9c438.netlify.app/",
   "author": "",
   "license": "ISC",
   "dependencies": {
