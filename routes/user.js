@@ -44,7 +44,7 @@ router.post('/login', passport.authenticate('local', {session: false}), (req, re
     if(req.isAuthenticated()){
         const {_id, username} = req.user;
         const token = signToken(_id);
-        res.cookie('jwt', token, {httpOnly: false, sameSite: "none", secure: true});
+        res.cookie('jwt', token);
         res.status(200).json({isAuthenticated: true, user: {username}});
     }
 });
