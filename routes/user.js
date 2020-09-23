@@ -13,7 +13,7 @@ const signToken = userID => {
     }, "MateoNav", {expiresIn: "1h"});
 }
 
-router.post('https://covid-conscious.herokuapp.com/register',(req,res) => {
+router.post('/register',(req,res) => {
     const{ username, fullname, email, password} = req.body;
     User.findOne({username}, (err, user) => {
         if(err)
@@ -40,7 +40,7 @@ router.post('https://covid-conscious.herokuapp.com/register',(req,res) => {
         }
     })
 })
-router.post('https://covid-conscious.herokuapp.com/login', passport.authenticate('local', {session: false}), (req, res) => {
+router.post('/login', passport.authenticate('local', {session: false}), (req, res) => {
     if(req.isAuthenticated()){
         const {_id, username} = req.user;
         const token = signToken(_id);
@@ -49,12 +49,12 @@ router.post('https://covid-conscious.herokuapp.com/login', passport.authenticate
     }
 });
 
-router.get('https://covid-conscious.herokuapp.com/logout', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.get('/logout', passport.authenticate('jwt', {session: false}), (req, res) => {
     res.clearCookie('jwt');
     res.json({user: {username: ""}, success: true});
 });
 
-router.get('https://covid-conscious.herokuapp.com/covidlog', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.get('/covidlog', passport.authenticate('jwt', {session: false}), (req, res) => {
     User.findById({_id: req.user._id}).populate('logs').exec((err, document) => {
         if(err)
             res.status(err).json({message: {messagBody: 'Error has occurred', errorMessage: true}})
@@ -65,13 +65,13 @@ router.get('https://covid-conscious.herokuapp.com/covidlog', passport.authentica
 });
 
 
-router.route('https://covid-conscious.herokuapp.com/covidlog/:id').delete((req, res) => {
+router.route('/covidlog/:id').delete((req, res) => {
     Log.findByIdAndDelete(req.params.id)
         .then(() => res.json('Covid log deleted'))
         .catch((err) => res.json(err))
 })
 
-router.post('https://covid-conscious.herokuapp.com/covidlog/add', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.post('/covidlog/add', passport.authenticate('jwt', {session: false}), (req, res) => {
     const logDate = Date.parse(req.body.logDate);
     const location = req.body.location;
     const duration = Number(req.body.duration);
@@ -97,7 +97,7 @@ router.post('https://covid-conscious.herokuapp.com/covidlog/add', passport.authe
     })
 });
 
-router.get('https://covid-conscious.herokuapp.com/authenticated', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.get('/authenticated', passport.authenticate('jwt', {session: false}), (req, res) => {
     const {username} = req.user;
     res.status(200).json({isAuthenticated: true, user: {username}});
 });
