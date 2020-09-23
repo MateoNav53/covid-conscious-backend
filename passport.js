@@ -13,7 +13,7 @@ const cookieExtractor = req => {
 
 passport.use(new JwtStrategy({
     jwtFromRequest: cookieExtractor,
-    secretOrKey: "MateoNav"
+    secretOrKey: process.env.SECRET
 }, (payload, done) => {
     User.findById({_id: payload.sub}, (err, user) => {
         if(err)
