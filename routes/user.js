@@ -15,6 +15,7 @@ const signToken = userID => {
 
 router.post('/register',(req,res) => {
     const{ username, fullname, email, password} = req.body;
+    res.header('Access-Control-Allow-Origin', '*')
     User.findOne({username}, (err, user) => {
         if(err)
             res.status(err).json({message: {messageBody: "Error has occurred", errorMessage: true}})
@@ -52,11 +53,13 @@ router.post('/login', passport.authenticate('local', {session: false}), (req, re
 });
 
 router.get('/logout', passport.authenticate('jwt', {session: false}), (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
     res.clearCookie('jwt');
     res.json({user: {username: ""}, success: true});
 });
 
 router.get('/covidlog', passport.authenticate('jwt', {session: false}), (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
     User.findById({_id: req.user._id}).populate('logs').exec((err, document) => {
         if(err)
             res.status(err).json({message: {messagBody: 'Error has occurred', errorMessage: true}})
@@ -68,12 +71,14 @@ router.get('/covidlog', passport.authenticate('jwt', {session: false}), (req, re
 
 
 router.route('/covidlog/:id').delete((req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
     Log.findByIdAndDelete(req.params.id)
         .then(() => res.json('Covid log deleted'))
         .catch((err) => res.json(err))
 })
 
 router.post('/covidlog/add', passport.authenticate('jwt', {session: false}), (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
     const logDate = Date.parse(req.body.logDate);
     const location = req.body.location;
     const duration = Number(req.body.duration);
@@ -100,6 +105,7 @@ router.post('/covidlog/add', passport.authenticate('jwt', {session: false}), (re
 });
 
 router.get('/authenticated', passport.authenticate('jwt', {session: false}), (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
     const {username} = req.user;
     res.status(200).json({isAuthenticated: true, user: {username}});
 });
