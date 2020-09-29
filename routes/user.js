@@ -15,7 +15,6 @@ const signToken = userID => {
 
 router.post('/register',(req,res) => {
     const{ username, fullname, email, password} = req.body;
-    res.header('Access-Control-Allow-Origin', '*')
     User.findOne({username}, (err, user) => {
         if(err)
             res.status(err).json({message: {messageBody: "Error has occurred", errorMessage: true}})
@@ -41,25 +40,22 @@ router.post('/register',(req,res) => {
         }
     })
 })
-router.post('/login', passport.authenticate('local', {session: false}), (req, res) => {
+router.post('/login', passport.authenticate('jwt', {session: false}), (req, res) => {
     if(req.isAuthenticated()){
         const {_id, username} = req.user;
         const token = signToken(_id);
-        res.cookie('jwt', token, {httpOnly: true, sameSite: "none"});
-        res.header("Authorization", token)
-        res.header('Access-Control-Allow-Origin', '*')
+        res.cookie('jwt', token);
         res.status(200).json({isAuthenticated: true, user: {username}});
     }
 });
 
 router.get('/logout', passport.authenticate('jwt', {session: false}), (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*')
     res.clearCookie('jwt');
     res.json({user: {username: ""}, success: true});
 });
 
 router.get('/covidlog', passport.authenticate('jwt', {session: false}), (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*')
+    console.log(req)
     User.findById({_id: req.user._id}).populate('logs').exec((err, document) => {
         if(err)
             res.status(err).json({message: {messagBody: 'Error has occurred', errorMessage: true}})
@@ -78,7 +74,6 @@ router.route('/covidlog/:id').delete((req, res) => {
 })
 
 router.post('/covidlog/add', passport.authenticate('jwt', {session: false}), (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*')
     const logDate = Date.parse(req.body.logDate);
     const location = req.body.location;
     const duration = Number(req.body.duration);
@@ -105,7 +100,6 @@ router.post('/covidlog/add', passport.authenticate('jwt', {session: false}), (re
 });
 
 router.get('/authenticated', passport.authenticate('jwt', {session: false}), (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*')
     const {username} = req.user;
     res.status(200).json({isAuthenticated: true, user: {username}});
 });
