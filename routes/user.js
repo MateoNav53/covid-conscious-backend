@@ -45,6 +45,10 @@ router.post('/login', passport.authenticate('local', {session: false}), (req, re
         const {_id, username} = req.user;
         const token = signToken(_id);
         res.cookie('jwt', token);
+        res.header('Access-Control-Allow-Credentials', true);
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+        res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
         res.status(200).json({isAuthenticated: true, user: {username}});
     }
 });
@@ -56,6 +60,10 @@ router.get('/logout', passport.authenticate('jwt', {session: false}), (req, res)
 
 router.get('/covidlog', passport.authenticate('jwt', {session: false}), (req, res) => {
     console.log(req)
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
     User.findById({_id: req.user._id}).populate('logs').exec((err, document) => {
         if(err)
             res.status(err).json({message: {messagBody: 'Error has occurred', errorMessage: true}})
