@@ -15,6 +15,8 @@ passport.use(new JwtStrategy({
     jwtFromRequest: cookieExtractor,
     secretOrKey: process.env.SECRET
 }, (payload, done) => {
+    console.log(payload)
+    console.log(jwtFromRequest)
     User.findById({_id: payload.sub}, (err, user) => {
         if(err)
             return done(err, false);
