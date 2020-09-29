@@ -40,7 +40,7 @@ router.post('/register',(req,res) => {
         }
     })
 })
-router.post('/login', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.post('/login', passport.authenticate('local', {session: false}), (req, res) => {
     if(req.isAuthenticated()){
         const {_id, username} = req.user;
         const token = signToken(_id);
