@@ -41,10 +41,11 @@ router.post('/register',(req,res) => {
     })
 })
 router.post('/login', passport.authenticate('local', {session: false}), (req, res) => {
+    console.log(req.isAuthenticated())
     if(req.isAuthenticated()){
         const {_id, username} = req.user;
         const token = signToken(_id);
-        res.cookie('jwt', token, {httpOnly: true, sameSite: true});
+        res.cookie('jwt', token, {httpOnly: true, sameSite: 'none', secure: true, domain: 'https://mateonav53.github.io'});
         res.status(200).json({isAuthenticated: true, user: {username}});
     }
 });
