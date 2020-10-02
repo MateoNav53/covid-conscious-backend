@@ -13,10 +13,8 @@ const cookieExtractor = req => {
 
 passport.use(new JwtStrategy({
     jwtFromRequest: cookieExtractor,
-    secretOrKey: 'MateoNav'
+    secretOrKey: process.env.SECRET
 }, (payload, done) => {
-    console.log("JWT hit")
-    
     User.findById({_id: payload.sub}, (err, user) => {
         if(err)
             return done(err, false);
@@ -29,7 +27,6 @@ passport.use(new JwtStrategy({
 
 passport.use(new LocalStrategy((username, password, done) => {
     User.findOne({username}, (err, user) => {
-        console.log("LOCAL hit")
         if(err)
             return done(err);
         if(!user)
