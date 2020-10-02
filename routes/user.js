@@ -44,7 +44,7 @@ router.post('/login', passport.authenticate('local', {session: false}), (req, re
     if(req.isAuthenticated()){
         const {_id, username} = req.user;
         const token = signToken(_id);
-        res.cookie('jwt', token, {httpOnly: true, secure: true});
+        res.cookie('jwt', token, {httpOnly: true, sameSite: true});
         res.status(200).json({isAuthenticated: true, user: {username}});
     }
 });
@@ -55,7 +55,6 @@ router.get('/logout', passport.authenticate('jwt', {session: false}), (req, res)
 });
 
 router.get('/covidlog', passport.authenticate('jwt', {session: false}), (req, res) => {
-    console.log(req)
     User.findById({_id: req.user._id}).populate('logs').exec((err, document) => {
         if(err)
             res.status(err).json({message: {messagBody: 'Error has occurred', errorMessage: true}})
