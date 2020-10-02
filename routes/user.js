@@ -44,11 +44,7 @@ router.post('/login', passport.authenticate('local', {session: false}), (req, re
     if(req.isAuthenticated()){
         const {_id, username} = req.user;
         const token = signToken(_id);
-        res.cookie('jwt', token, {httpOnly: true, secure: true, maxAge: 999999999999});
-        res.header('Access-Control-Allow-Credentials', true);
-        res.header('Access-Control-Allow-Origin', req.headers.origin);
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-        res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+        res.cookie('jwt', token, {httpOnly: true, secure: true});
         res.status(200).json({isAuthenticated: true, user: {username}});
     }
 });
@@ -60,10 +56,6 @@ router.get('/logout', passport.authenticate('jwt', {session: false}), (req, res)
 
 router.get('/covidlog', passport.authenticate('jwt', {session: false}), (req, res) => {
     console.log(req)
-    res.header('Access-Control-Allow-Credentials', true);
-    res.header('Access-Control-Allow-Origin', req.headers.origin);
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
     User.findById({_id: req.user._id}).populate('logs').exec((err, document) => {
         if(err)
             res.status(err).json({message: {messagBody: 'Error has occurred', errorMessage: true}})
@@ -75,7 +67,6 @@ router.get('/covidlog', passport.authenticate('jwt', {session: false}), (req, re
 
 
 router.route('/covidlog/:id').delete((req, res) => {
-    res.header('Access-Control-Allow-Origin', '*')
     Log.findByIdAndDelete(req.params.id)
         .then(() => res.json('Covid log deleted'))
         .catch((err) => res.json(err))
