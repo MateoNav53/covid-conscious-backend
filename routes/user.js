@@ -45,7 +45,7 @@ router.post('/login', passport.authenticate('local', {session: false}), (req, re
     if(req.isAuthenticated()){
         const {_id, username} = req.user;
         const token = signToken(_id);
-        res.cookie('jwt', token, {httpOnly: true, sameSite: 'none', secure: true, domain: 'https://covid-conscious.herokuapp.com', maxAge: 5000});
+        res.cookie('jwt', token, {httpOnly: true, sameSite: 'none', secure: true, domain: 'covid-conscious.herokuapp.com', maxAge: 5000});
         res.status(200).json({isAuthenticated: true, user: {username}});
     }
 });
