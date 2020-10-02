@@ -11,6 +11,7 @@ const port = process.env.PORT || 7000;
 
 const corsOptions = {
     origin: ['http://localhost:3000', 'https://mateonav53.github.io'],
+    credentials: true,
     optionsSuccessStatus: 200
   }
 
