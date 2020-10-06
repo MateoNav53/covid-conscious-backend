@@ -51,7 +51,7 @@ router.post('/login', passport.authenticate('local', {session: false}), (req, re
 });
 
 router.get('/logout', passport.authenticate('jwt', {session: false}), (req, res) => {
-    res.clearCookie('jwt', {domain: 'covid-conscious.herokuapp.com', path: "/"});
+    res.clearCookie('jwt', {httpOnly: true, sameSite: 'none', secure: true, domain: 'covid-conscious.herokuapp.com'});
     res.json({user: {username: ""}, success: true});
 });
 
